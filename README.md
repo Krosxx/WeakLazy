@@ -1,0 +1,2 @@
+# WeakLazy
+WeakLazy for Kotlin
