@@ -1,0 +1,29 @@
+import java.lang.ref.WeakReference
+import kotlin.reflect.KProperty
+
+fun <T> weakLazy(lock: Any? = null, valueBuilder: () -> T) = WeakLazy(valueBuilder, lock)
+
+class WeakLazy<T>(val valueBuilder: () -> T, lock: Any? = null) {
+    private val lock = lock ?: this
+
+    private var weakValue: WeakReference<T>? = null
+
+    //gc times
+    var gcCount = -1
+        private set
+
+    val isInitialized get() = weakValue != null
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = synchronized(lock) {
+        val wv = weakValue
+        return wv?.get().let {
+            if (it == null) {
+                gcCount++
+                val v = valueBuilder()
+                weakValue = WeakReference(v)
+                v
+            } else it
+        }
+    }
+
+}
