@@ -12,7 +12,8 @@ class WeakLazy<T>(val valueBuilder: () -> T, lock: Any? = null) {
     var gcCount = -1
         private set
 
-    val isInitialized get() = weakValue != null
+    //may be not init
+    val hasValue get() = weakValue?.get() != null
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T = synchronized(lock) {
         val wv = weakValue
@@ -24,6 +25,10 @@ class WeakLazy<T>(val valueBuilder: () -> T, lock: Any? = null) {
                 v
             } else it
         }
+    }
+
+    fun clearWeakValue() {
+        weakValue?.clear()
     }
 
 }
